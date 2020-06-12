@@ -260,7 +260,6 @@ func resourceArmPostgreSQLServer() *schema.Resource {
 			"ssl_enforcement_enabled": {
 				Type:         schema.TypeBool,
 				Optional:     true, // required in 3.0
-				Computed:     true, // remove computed in 3.0
 				ExactlyOneOf: []string{"ssl_enforcement", "ssl_enforcement_enabled"},
 			},
 
@@ -397,10 +396,7 @@ func resourceArmPostgreSQLServerCreate(d *schema.ResourceData, meta interface{})
 	}
 
 	ssl := postgresql.SslEnforcementEnumEnabled
-	if v, ok := d.GetOk("ssl_enforcement"); ok && strings.EqualFold(v.(string), string(postgresql.SslEnforcementEnumDisabled)) {
-		ssl = postgresql.SslEnforcementEnumDisabled
-	}
-	if v, ok := d.GetOkExists("ssl_enforcement_enabled"); ok && !v.(bool) {
+	if v := d.Get("ssl_enforcement_enabled"); !v.(bool) {
 		ssl = postgresql.SslEnforcementEnumDisabled
 	}
 
@@ -431,7 +427,7 @@ func resourceArmPostgreSQLServerCreate(d *schema.ResourceData, meta interface{})
 			InfrastructureEncryption:   infraEncrypt,
 			PublicNetworkAccess:        publicAccess,
 			MinimalTLSVersion:          tlsMin,
-			SslEnforcement:             ssl,
+			SslEnforcement:             postgresql.SslEnforcementEnum(ssl),
 			StorageProfile:             storage,
 			Version:                    version,
 		}
@@ -528,6 +524,8 @@ func resourceArmPostgreSQLServerUpdate(d *schema.ResourceData, meta interface{})
 	ctx, cancel := timeouts.ForUpdate(meta.(*clients.Client).StopContext, d)
 	defer cancel()
 
+	// TODO: support for Delta updates
+
 	log.Printf("[INFO] preparing arguments for AzureRM PostgreSQL Server update.")
 
 	id, err := parse.PostgresServerServerID(d.Id())
@@ -546,9 +544,6 @@ func resourceArmPostgreSQLServerUpdate(d *schema.ResourceData, meta interface{})
 	}
 
 	ssl := postgresql.SslEnforcementEnumEnabled
-	if v := d.Get("ssl_enforcement"); strings.EqualFold(v.(string), string(postgresql.SslEnforcementEnumDisabled)) {
-		ssl = postgresql.SslEnforcementEnumDisabled
-	}
 	if v := d.Get("ssl_enforcement_enabled"); !v.(bool) {
 		ssl = postgresql.SslEnforcementEnumDisabled
 	}
