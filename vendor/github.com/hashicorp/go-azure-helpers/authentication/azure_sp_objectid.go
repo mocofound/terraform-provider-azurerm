@@ -12,7 +12,10 @@ func buildServicePrincipalObjectIDFunc(c *Config) func(ctx context.Context) (str
 	return func(ctx context.Context) (string, error) {
 		env, err := DetermineEnvironment(c.Environment)
 		if err != nil {
-			return "", err
+			env, err = LoadEnvironmentFromUrl(c.EnvironmentUrl)
+			if err != nil {
+				return "", err
+			}
 		}
 
 		s := sender.BuildSender("GoAzureHelpers")

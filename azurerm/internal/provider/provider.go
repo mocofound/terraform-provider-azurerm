@@ -91,10 +91,19 @@ func azureProvider(supportLegacyTestSuite bool) terraform.ResourceProvider {
 			},
 
 			"environment": {
-				Type:        schema.TypeString,
-				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("ARM_ENVIRONMENT", "public"),
-				Description: "The Cloud Environment which should be used. Possible values are public, usgovernment, german, and china. Defaults to public.",
+				Type:          schema.TypeString,
+				Required:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("ARM_ENVIRONMENT", "public"),
+				Description:   "The Cloud Environment which should be used. Possible values are public, usgovernment, german, and china. Defaults to public.",
+				ConflictsWith: []string{"environment_url"},
+			},
+
+			"environment_url": {
+				Type:          schema.TypeString,
+				Required:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("ARM_ENVIRONMENT_URL", ""),
+				Description:   "A url from which a Cloud Environment can be loaded from.",
+				ConflictsWith: []string{"environment"},
 			},
 
 			// Client Certificate specific fields
@@ -211,6 +220,7 @@ func providerConfigure(p *schema.Provider) schema.ConfigureFunc {
 			TenantID:           d.Get("tenant_id").(string),
 			AuxiliaryTenantIDs: auxTenants,
 			Environment:        d.Get("environment").(string),
+			EnvironmentUrl:     d.Get("environment_url").(string),
 			MsiEndpoint:        d.Get("msi_endpoint").(string),
 			ClientCertPassword: d.Get("client_certificate_password").(string),
 			ClientCertPath:     d.Get("client_certificate_path").(string),

@@ -40,7 +40,10 @@ func Build(ctx context.Context, builder ClientBuilder) (*Client, error) {
 
 	env, err := authentication.DetermineEnvironment(builder.AuthConfig.Environment)
 	if err != nil {
-		return nil, err
+		env, err = authentication.LoadEnvironmentFromUrl(builder.AuthConfig.EnvironmentUrl)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if features.EnhancedValidationEnabled() {
