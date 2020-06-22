@@ -92,7 +92,7 @@ func azureProvider(supportLegacyTestSuite bool) terraform.ResourceProvider {
 
 			"environment": {
 				Type:          schema.TypeString,
-				Required:      true,
+				Optional:      true,
 				DefaultFunc:   schema.EnvDefaultFunc("ARM_ENVIRONMENT", "public"),
 				Description:   "The Cloud Environment which should be used. Possible values are public, usgovernment, german, and china. Defaults to public.",
 				ConflictsWith: []string{"environment_url"},
@@ -100,7 +100,7 @@ func azureProvider(supportLegacyTestSuite bool) terraform.ResourceProvider {
 
 			"environment_url": {
 				Type:          schema.TypeString,
-				Required:      true,
+				Optional:      true,
 				DefaultFunc:   schema.EnvDefaultFunc("ARM_ENVIRONMENT_URL", ""),
 				Description:   "A url from which a Cloud Environment can be loaded from.",
 				ConflictsWith: []string{"environment"},
