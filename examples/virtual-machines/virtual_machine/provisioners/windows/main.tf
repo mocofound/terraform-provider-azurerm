@@ -71,6 +71,7 @@ resource "azurerm_virtual_machine" "example" {
 
   provisioner "remote-exec" {
     connection {
+      host     = azurerm_public_ip.example.fqdn
       user     = "${local.admin_username}"
       password = "${local.admin_password}"
       port     = 5986
